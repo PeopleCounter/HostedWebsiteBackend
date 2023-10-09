@@ -205,9 +205,7 @@ app.post("/auth/login",async(req,res)=>{
 app.get('/logs/getGuestUsers',async(req,res)=>{
 
 
-        let result = await fetch('https://appbackend-kjrf.onrender.com/log/getGuestUsers',{
-            method:"GET",
-        })
+        let result = await GuestEntries.find()
         console.log(result);
         res.status(200).json(result)
 })
