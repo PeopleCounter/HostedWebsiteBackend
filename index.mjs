@@ -127,8 +127,17 @@ app.post('/log/flow',async(req,res)=>
     let res_count = await Count.findOne({date:{$eq:date_month}})
     let cur_in = res_count.in
     let cur_out = res_count.out
-    let new_in =  in_people
+    let new_in = in_people
     let new_out =  out_people
+    
+    if(cur_in > new_in){
+     new_in = cur_in + in_people
+    }
+
+    if(cur_out > new_out){
+        new_out = cur_out + out_people
+    }
+    
 
     await Count.updateOne({date:{$eq:date_month}},{in:new_in,out:new_out})
     // let res_count = await Count.findOne({date:date_month})
