@@ -130,13 +130,13 @@ app.post('/log/flow',async(req,res)=>
     let new_in = in_people
     let new_out =  out_people
     
-    if(cur_in > new_in){
-     new_in = cur_in + in_people
-    }
+    // if(cur_in > new_in){
+    //  new_in = cur_in + in_people
+    // }
 
-    if(cur_out > new_out){
-        new_out = cur_out + out_people
-    }
+    // if(cur_out > new_out){
+    //     new_out = cur_out + out_people
+    // }
     
 
     await Count.updateOne({date:{$eq:date_month}},{in:new_in,out:new_out})
