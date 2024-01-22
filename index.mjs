@@ -44,13 +44,24 @@ app.get("/connection/faces",async(req,res)=>{
 
 app.get('/dates/getDates',async(req,res)=>{
     let resut = await Count.find()
-    resut.forEach((element)=>{
-        let build_date = element['date'].split('-')
-        build_date = "2023-"+ String(parseInt(build_date[1])+1) +"-"+build_date[0]
-        let cur_date = new Date(build_date)
-        element['date'] = DATE_MAPPING [cur_date.getDay()]
+    let date = new Date()
+    let date_now = date.getDate()
 
-    })
+
+    resut = _.take_right(resut,7)
+    console.log(resut);
+    resut.forEach((element)=>{
+        
+        let build_date = element['date'].split('-')
+                
+                build_date = "2023-"+ String(parseInt(build_date[1])+1) +"-"+build_date[0]
+                let cur_date = new Date(build_date)
+                element['date'] = DATE_MAPPING [cur_date.getDay()];
+        }
+        )
+    
+
+    
     return res.status(200).json({result:resut})
 })
 
