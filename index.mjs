@@ -37,7 +37,12 @@ app.get("/connection/faces",async(req,res)=>{
     console.log(result)
     // socket.emit("Update",{in:result.in,out:result.out})
     // socket.emit("Update_FaceDetection",{teacher:result.teacher,student:result.student,unknown:result.unknown})
-    return res.json({teacher:result.teacher,student:result.student,unknown:result.unknown,in:result.in,out:result.out}).status(200)
+    if(result){
+        return res.json({teacher:result.teacher,student:result.student,unknown:result.unknown,in:result.in,out:result.out,busiest_day:result.busiest_day,busiest_hour:result.busiest_hour}).status(200)
+    }else{
+
+        return res.json({teacher:0,student:0,unknown:0,in:0,out:0,busiest_day:"",busiest_hour:""}).status(200)
+    }
 })
 
 
@@ -49,7 +54,6 @@ app.get('/dates/getDates',async(req,res)=>{
     if(date_now - 7 >=0) {
        check_point = date_now - 7 
     }
-
     else{
         check_point = 1
     }
@@ -67,10 +71,30 @@ app.get('/dates/getDates',async(req,res)=>{
                 element['date'] = DATE_MAPPING [cur_date.getDay()];
         }
         )
-    
-
-    
     return res.status(200).json({result:resut})
+})
+
+app.get('/Cron-Check',async(req,res)=>{
+    let date = new Date()
+    let date_month = String(date.getDate())+"-"+String(date.getMonth())
+    let resut = await Count.find()
+    let date_now = date.getDate()
+    let check_point
+    if(date_now - 7 >=0) {
+       check_point = date_now - 7 
+    }
+    else{
+        check_point = 1
+    }
+
+    resut = resut.filter(item=>check_point<parseInt(item['date'].split('-')[0]) && parseInt(item['date'].split('-')[0])<=date_now)
+    resut.sort((a,b)=>b['in'] - a['in'])
+                let build_date = resut[0].date.split('-')
+                build_date = "2023-"+ String(parseInt(build_date[1])+1) +"-"+build_date[0]
+                let cur_date = new Date(build_date)
+                resut['date'] = DATE_MAPPING [cur_date.getDay()];
+        Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0})
+    return res.json({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0}).status(200)
 })
 
 app.get('/logs/general/:id',(req,res)=>{
@@ -96,8 +120,6 @@ app.get('/logs/general/:id',(req,res)=>{
     })
        
 })
-
-
 app.get('/logs/CSV',(req,res)=>{
     const file_path = "e:/Desktop/RaspberryPi/Dashboard/React_Backend/Backend/Python/FaceRecognition/Record.csv"
     const results = []
@@ -110,14 +132,6 @@ app.get('/logs/CSV',(req,res)=>{
         res.status(500)
     })
        
-})
-
-app.get('/Cron-Check',async(req,res)=>{
-    let date = new Date()
-    let date_month = String(date.getDate())+"-"+String(date.getMonth())
-    Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",student:0,teacher:0,unknown:0})
-    return res.json({date:date_month,in:0,out:0,busiest_hour:"",student:0,teacher:0,unknown:0}).status(200)
-
 })
 
 app.get('/calculate/busiest_hour',async(req,res)=>{
@@ -155,17 +169,8 @@ app.post('/log/flow',async(req,res)=>
     let res_count = await Count.findOne({date:{$eq:date_month}})
     let cur_in = res_count.in
     let cur_out = res_count.out
-    let new_in = in_people
-    let new_out =  out_people
-    
-    // if(cur_in > new_in){
-    //  new_in = cur_in + in_people
-    // }
-
-    // if(cur_out > new_out){
-    //     new_out = cur_out + out_people
-    // }
-    
+    let new_in = cur_in + in_people
+    let new_out = cur_out + out_people
 
     await Count.updateOne({date:{$eq:date_month}},{in:new_in,out:new_out})
     // let res_count = await Count.findOne({date:date_month})
@@ -242,7 +247,9 @@ app.post("/auth/login",async(req,res)=>{
 app.get('/logs/getGuestUsers',async(req,res)=>{
 
 
-        let result = await GuestEntries.find()
+        let result = await fetch('https://appbackend-kjrf.onrender.com/log/getGuestUsers',{
+            method:"GET",
+        })
         console.log(result);
         res.status(200).json(result)
 })
