@@ -11,7 +11,6 @@ import { Server } from "socket.io";
 import fs from 'fs'
 import csv from 'fast-csv'
 import GuestEntries from "./DB_Schema/GuestEntries.mjs";
-import _ from "loadash"
 CreateDocument()
 const DATE_MAPPING = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
 // const WebSocket = new Server(4001,{
