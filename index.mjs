@@ -46,10 +46,19 @@ app.get('/dates/getDates',async(req,res)=>{
     let resut = await Count.find()
     let date = new Date()
     let date_now = date.getDate()
+    let check_point
+    if(date_now - 7 >=0) {
+       check_point = date_now - 7 
+    }
 
+    else{
+        check_point = 1
+    }
 
-    resut = _.take_right(resut,7)
+    resut = resut.filter(item=>check_point<parseInt(item['date'].split('-')[0]) && parseInt(item['date'].split('-')[0])<=date_now)
     console.log(resut);
+    resut.sort((a,b)=>parseInt(a['date'].split('-')[0]) - parseInt(b['date'].split('-')[0]))
+    
     resut.forEach((element)=>{
         
         let build_date = element['date'].split('-')
