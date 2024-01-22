@@ -97,6 +97,7 @@ app.get('/Cron-Check',async(req,res)=>{
     let date = new Date()
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",student:0,teacher:0,unknown:0})
+    return res.json({date:date_month,in:0,out:0,busiest_hour:"",student:0,teacher:0,unknown:0}).status(200)
 
 })
 
