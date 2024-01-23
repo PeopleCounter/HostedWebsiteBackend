@@ -58,7 +58,7 @@ app.get('/dates/getDates',async(req,res)=>{
         check_point = 1
     }
 
-    resut = resut.filter(item=>check_point<parseInt(item['date'].split('-')[0]) && parseInt(item['date'].split('-')[0])<=date_now)
+    resut = resut.filter(item=>check_point<=parseInt(item['date'].split('-')[0]) && parseInt(item['date'].split('-')[0])<=date_now)
     console.log(resut);
     resut.sort((a,b)=>parseInt(a['date'].split('-')[0]) - parseInt(b['date'].split('-')[0]))
     
@@ -71,6 +71,7 @@ app.get('/dates/getDates',async(req,res)=>{
                 element['date'] = DATE_MAPPING [cur_date.getDay()];
         }
         )
+    console.log(resut)
     return res.status(200).json({result:resut})
 })
 
@@ -93,7 +94,7 @@ app.get('/Cron-Check',async(req,res)=>{
                 build_date = "2023-"+ String(parseInt(build_date[1])+1) +"-"+build_date[0]
                 let cur_date = new Date(build_date)
                 resut['date'] = DATE_MAPPING [cur_date.getDay()];
-        Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0})
+    Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0})
     return res.json({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0}).status(200)
 })
 
