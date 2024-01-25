@@ -63,10 +63,18 @@ app.get("/connection/faces",async(req,res)=>{
 
 app.get('/dates/getDates',async(req,res)=>{
     let resut = await Count.find().catch(err=>{return res.json({"error":"couldnt fetch data"})})
-    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
-        method:"GET",
-        ContentType:"application/json",
-    }).then((result)=>{return result.json()}).catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
+      try
+    {
+        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+            method:"GET",
+            ContentType:"application/json",
+        })
+    }
+
+    catch
+    {
+        return res.json({"error":"Coludnt connect to faces"}).status(500)
+    }
     let date = new Date(resu.datetime)
 
     let date_now = date.getDate()
@@ -95,10 +103,18 @@ app.get('/dates/getDates',async(req,res)=>{
 })
 
 app.get('/Cron-Check',async(req,res)=>{
-    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
-        method:"GET",
-        ContentType:"application/json",
-    }).then((result)=>{return result.json()}).catch(err=>{return res.json({"error":"couldnt connect to api"}).status(500)})
+     try
+    {
+        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+            method:"GET",
+            ContentType:"application/json",
+        })
+    }
+
+    catch
+    {
+        return res.json({"error":"Coludnt connect to faces"}).status(500)
+    }
     let date = new Date(resu.datetime)
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     let resut = await Count.find().catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
@@ -191,10 +207,18 @@ app.post('/log/FaceDetection',async(req,res)=>{
 
 app.post('/log/flow',async(req,res)=>
 {
-    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
-        method:"GET",
-        ContentType:"application/json",
-    }).then((result)=>{return result.json()}).catch(err=>{return res.json({"error":"couldnt connect to api"}).status(500)})
+      try
+    {
+        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+            method:"GET",
+            ContentType:"application/json",
+        })
+    }
+
+    catch
+    {
+        return res.json({"error":"Coludnt connect to faces"}).status(500)
+    }
     let date = new Date(resu.datetime)    
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     let in_people = req.body.in
