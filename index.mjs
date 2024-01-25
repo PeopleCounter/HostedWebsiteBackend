@@ -41,7 +41,7 @@ app.get("/connection/faces",async(req,res)=>{
 
     catch
     {
-        return res.json({"error":"Coludnt connect to faces"}).status(500)}
+        return res.json({"error":"Coludnt connect to faces"}).status(500)
     }
     
     resu = resu.json()
