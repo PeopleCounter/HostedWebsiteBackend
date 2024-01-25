@@ -30,10 +30,11 @@ app.use(session({secret:process.env.SECRET,resave:false,saveUninitialized:true})
 
 //calculate_busiest_hour()
 app.get("/connection/faces",async(req,res)=>{
+    let resu
 
     try
     {
-        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
             method:"GET",
             ContentType:"application/json",
         })
@@ -63,9 +64,10 @@ app.get("/connection/faces",async(req,res)=>{
 
 app.get('/dates/getDates',async(req,res)=>{
     let resut = await Count.find().catch(err=>{return res.json({"error":"couldnt fetch data"})})
+    let resu
       try
     {
-        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
             method:"GET",
             ContentType:"application/json",
         })
@@ -103,9 +105,10 @@ app.get('/dates/getDates',async(req,res)=>{
 })
 
 app.get('/Cron-Check',async(req,res)=>{
+    let resu
      try
     {
-        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
             method:"GET",
             ContentType:"application/json",
         })
@@ -207,9 +210,10 @@ app.post('/log/FaceDetection',async(req,res)=>{
 
 app.post('/log/flow',async(req,res)=>
 {
+    let resu
       try
     {
-        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
             method:"GET",
             ContentType:"application/json",
         })
