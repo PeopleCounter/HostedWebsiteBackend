@@ -34,10 +34,10 @@ app.get("/connection/faces",async(req,res)=>{
     let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
         method:"GET",
         ContentType:"application/json",
-    }).then((result)=>{return result.json()})
+    }).then((result)=>{return result.json()}).catch((err)=>{return res.json({"error":"Coludnt connect to faces"}).status(500)})
     let date = new Date(resu.datetime)
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
-    let result = await Count.findOne({date:date_month})
+    let result = await Count.findOne({date:date_month}).catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
     if(result){
     console.log("-------"+result.busiest_day)
     // socket.emit("Update",{in:result.in,out:result.out})
@@ -52,11 +52,11 @@ app.get("/connection/faces",async(req,res)=>{
 
 
 app.get('/dates/getDates',async(req,res)=>{
-    let resut = await Count.find()
+    let resut = await Count.find().catch(err=>{return res.json({"error":"couldnt fetch data"})})
     let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
         method:"GET",
         ContentType:"application/json",
-    }).then((result)=>{return result.json()})
+    }).then((result)=>{return result.json()}).catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
     let date = new Date(resu.datetime)
 
     let date_now = date.getDate()
@@ -88,10 +88,10 @@ app.get('/Cron-Check',async(req,res)=>{
     let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
         method:"GET",
         ContentType:"application/json",
-    }).then((result)=>{return result.json()})
+    }).then((result)=>{return result.json()}).catch(err=>{return res.json({"error":"couldnt connect to api"}).status(500)})
     let date = new Date(resu.datetime)
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
-    let resut = await Count.find()
+    let resut = await Count.find().catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
     if(resut.length!=0){
     let date_now = date.getDate()
     let check_point
@@ -156,7 +156,7 @@ app.get('/logs/CSV',(req,res)=>{
 app.get('/calculate/busiest_hour',async(req,res)=>{
     let date = new Date()
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
-    let result = await Count.findOne({date:date_month})
+    let result = await Count.findOne({date:date_month}).catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
     res.json({busiest_hour:result.busiest_hour})
     res.status(200)
 })
@@ -184,19 +184,19 @@ app.post('/log/flow',async(req,res)=>
     let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
         method:"GET",
         ContentType:"application/json",
-    }).then((result)=>{return result.json()})
+    }).then((result)=>{return result.json()}).catch(err=>{return res.json({"error":"couldnt connect to api"}).status(500)})
     let date = new Date(resu.datetime)    
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     let in_people = req.body.in
     let out_people = req.body.out
-    let res_count = await Count.findOne({date:{$eq:date_month}})
+    let res_count = await Count.findOne({date:{$eq:date_month}}).catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
     let cur_in = res_count.in
     let cur_out = res_count.out
     let new_in = cur_in + in_people
     let new_out = cur_out + out_people
 
 
-    await Count.updateOne({date:{$eq:date_month}},{in:new_in,out:new_out})
+    await Count.updateOne({date:{$eq:date_month}},{in:new_in,out:new_out}).catch(err=>{return res.json({"error":"couldnt update data"})})
     // let res_count = await Count.findOne({date:date_month})
     // if(res_count.matchedCount > 0)
     // {
