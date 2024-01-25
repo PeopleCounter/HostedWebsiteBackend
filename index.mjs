@@ -34,7 +34,8 @@ app.get("/connection/faces",async(req,res)=>{
     let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
         method:"GET",
         ContentType:"application/json",
-    }).then((result)=>{return result.json()}).catch((err)=>{return res.json({"error":"Coludnt connect to faces"}).status(500)})
+    }).catch((err)=>{return res.json({"error":"Coludnt connect to faces"}).status(500)})
+    resu = resu.json()
     let date = new Date(resu.datetime)
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     let result = await Count.findOne({date:date_month}).catch(err=>{return res.json({"error":"couldnt fetch data"}).status(500)})
