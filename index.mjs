@@ -12,7 +12,7 @@ import fs from 'fs'
 import csv from 'fast-csv'
 import GuestEntries from "./DB_Schema/GuestEntries.mjs";
 // CreateDocument()
-const DATE_MAPPING = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"]
+const DATE_MAPPING = ["","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 // const WebSocket = new Server(4001,{
 //     cors:{
 //     origin:"http://localhost:5173",
@@ -31,21 +31,34 @@ app.use(session({secret:process.env.SECRET,resave:false,saveUninitialized:true})
 //calculate_busiest_hour()
 app.get("/connection/faces",async(req,res)=>{
 
-    let date = new Date()
+    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        method:"GET",
+        ContentType:"application/json",
+    }).then((result)=>{return result.json()})
+    let date = new Date(resu.datetime)
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     let result = await Count.findOne({date:date_month})
+    if(result){
     console.log("-------"+result.busiest_day)
     // socket.emit("Update",{in:result.in,out:result.out})
     // socket.emit("Update_FaceDetection",{teacher:result.teacher,student:result.student,unknown:result.unknown})
     
         return res.json({teacher:result.teacher,student:result.student,unknown:result.unknown,in:result.in,out:result.out,busiest_day:result.busiest_day,busiest_hour:result.busiest_hour}).status(200)
-    
+    }
+    else{
+        return res.json({teacher:0,student:0,unknown:0,in:0,out:0,busiest_day:DATE_MAPPING[resu.day_of_week],busiest_hour:""}).status(200)
+    }
 })
 
 
 app.get('/dates/getDates',async(req,res)=>{
     let resut = await Count.find()
-    let date = new Date()
+    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        method:"GET",
+        ContentType:"application/json",
+    }).then((result)=>{return result.json()})
+    let date = new Date(resu.datetime)
+
     let date_now = date.getDate()
     let check_point
     if(date_now - 7 >=0) {
@@ -55,7 +68,7 @@ app.get('/dates/getDates',async(req,res)=>{
         check_point = 1
     }
 
-    resut = resut.filter(item=>check_point<parseInt(item['date'].split('-')[0]) && parseInt(item['date'].split('-')[0])<=date_now)
+    resut = resut.filter(item=>check_point<=parseInt(item['date'].split('-')[0]) && parseInt(item['date'].split('-')[0])<=date_now)
     resut.sort((a,b)=>parseInt(a['date'].split('-')[0]) - parseInt(b['date'].split('-')[0]))
     
     resut.forEach((element)=>{
@@ -64,14 +77,19 @@ app.get('/dates/getDates',async(req,res)=>{
                 
                 build_date = "2023-"+ String(parseInt(build_date[1])+1) +"-"+build_date[0]
                 let cur_date = new Date(build_date)
-                element['date'] = DATE_MAPPING [cur_date.getDay()];
+                console.log(cur_date.getDay())
+                element['date'] = DATE_MAPPING [cur_date.getDay()+1];
         }
         )
     return res.status(200).json({result:resut})
 })
 
 app.get('/Cron-Check',async(req,res)=>{
-    let date = new Date()
+    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        method:"GET",
+        ContentType:"application/json",
+    }).then((result)=>{return result.json()})
+    let date = new Date(resu.datetime)
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     let resut = await Count.find()
     if(resut.length!=0){
@@ -86,20 +104,15 @@ app.get('/Cron-Check',async(req,res)=>{
 
     resut = resut.filter(item=>check_point<parseInt(item['date'].split('-')[0]) && parseInt(item['date'].split('-')[0])<=date_now)
     resut.sort((a,b)=>b['in'] - a['in'])
-                let build_date = resut[0].date.split('-')
-                build_date = "2023-"+ String(parseInt(build_date[1])+1) +"-"+build_date[0]
-                let cur_date = new Date(build_date)
-                resut['date'] = DATE_MAPPING [cur_date.getDay()];
-        Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0})
+       resut['date'] = DATE_MAPPING[resu.day_of_week]
+       await Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0}).catch(err=>console.log(err))
     return res.json({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:resut.date,student:0,teacher:0,unknown:0}).status(200)
     }
 
     else{
-        let build_date = date_month.split('-')
-        build_date = "2023-"+ String(parseInt(build_date[1])+1) +"-"+build_date[0]
-        let cur_date = new Date(build_date)        
-        Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:DATE_MAPPING[cur_date.getDay()],student:0,teacher:0,unknown:0})
-        return res.json({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:DATE_MAPPING[cur_date.getDay()],student:0,teacher:0,unknown:0}).status(200)
+        let cur_date = DATE_MAPPING[resu.day_of_week]
+       await Count.insertMany({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:cur_date,student:0,teacher:0,unknown:0}).catch(err=>console.log(err))
+        return res.json({date:date_month,in:0,out:0,busiest_hour:"",busiest_day:DATE_MAPPING[cur_date],student:0,teacher:0,unknown:0}).status(200)
     }
 })
 
@@ -168,7 +181,11 @@ app.post('/log/FaceDetection',async(req,res)=>{
 
 app.post('/log/flow',async(req,res)=>
 {
-    let date = new Date()
+    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+        method:"GET",
+        ContentType:"application/json",
+    }).then((result)=>{return result.json()})
+    let date = new Date(resu.datetime)    
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
     let in_people = req.body.in
     let out_people = req.body.out
@@ -177,6 +194,7 @@ app.post('/log/flow',async(req,res)=>
     let cur_out = res_count.out
     let new_in = cur_in + in_people
     let new_out = cur_out + out_people
+
 
     await Count.updateOne({date:{$eq:date_month}},{in:new_in,out:new_out})
     // let res_count = await Count.findOne({date:date_month})
