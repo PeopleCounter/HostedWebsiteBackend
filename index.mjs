@@ -31,10 +31,19 @@ app.use(session({secret:process.env.SECRET,resave:false,saveUninitialized:true})
 //calculate_busiest_hour()
 app.get("/connection/faces",async(req,res)=>{
 
-    let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
-        method:"GET",
-        ContentType:"application/json",
-    }).catch((err)=>{return res.json({"error":"Coludnt connect to faces"}).status(500)})
+    try
+    {
+        let resu = await fetch("http://worldtimeapi.org/api/timezone/Asia/Kolkata",{
+            method:"GET",
+            ContentType:"application/json",
+        })
+    }
+
+    catch
+    {
+        return res.json({"error":"Coludnt connect to faces"}).status(500)}
+    }
+    
     resu = resu.json()
     let date = new Date(resu.datetime)
     let date_month = String(date.getDate())+"-"+String(date.getMonth())
